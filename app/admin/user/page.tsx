@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { AdminLayout } from "@/components/admin-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,7 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Search, Edit, Trash2, Eye, UserPlus, Download } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Search, Plus, Edit, Trash2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -18,42 +20,42 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
 
 export default function UserPage() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [users, setUsers] = useState([
     {
       id: 1,
-      name: "John Doe",
-      email: "john@example.com",
+      name: "김철수",
+      email: "kim@example.com",
       phone: "010-1234-5678",
       status: "active",
       joinDate: "2024-01-15",
-      lastLogin: "2024-02-28",
-      programs: 3,
+      lastLogin: "2024-03-10",
+      avatar: "/placeholder.svg?height=40&width=40",
     },
     {
       id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      phone: "010-2345-6789",
-      status: "active",
-      joinDate: "2024-01-20",
-      lastLogin: "2024-02-27",
-      programs: 2,
+      name: "이영희",
+      email: "lee@example.com",
+      phone: "010-9876-5432",
+      status: "inactive",
+      joinDate: "2024-02-20",
+      lastLogin: "2024-03-05",
+      avatar: "/placeholder.svg?height=40&width=40",
     },
     {
       id: 3,
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      phone: "010-3456-7890",
-      status: "inactive",
-      joinDate: "2024-02-01",
-      lastLogin: "2024-02-15",
-      programs: 1,
+      name: "박민수",
+      email: "park@example.com",
+      phone: "010-5555-1234",
+      status: "active",
+      joinDate: "2024-03-01",
+      lastLogin: "2024-03-12",
+      avatar: "/placeholder.svg?height=40&width=40",
     },
   ])
 
@@ -62,8 +64,30 @@ export default function UserPage() {
     setShowCreateDialog(false)
   }
 
+  const handleUserClick = (userId: number) => {
+    router.push(`/admin/user/${userId}`)
+  }
+
+  const handleEditClick = (userId: number) => {
+    router.push(`/admin/user/${userId}`)
+  }
+
+  const handleDeleteClick = (userId: number) => {
+    console.log("Deleting user:", userId)
+    // Add delete confirmation dialog here
+  }
+
   const getStatusBadgeClass = (status: string) => {
-    return status === "active" ? "bg-green-100 text-green-800 border-green-300" : "bg-gray-200 text-gray-800"
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-800 border-green-300"
+      case "inactive":
+        return "bg-red-100 text-red-800 border-red-300"
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300"
+      default:
+        return "bg-gray-200 text-gray-800"
+    }
   }
 
   return (
@@ -73,12 +97,12 @@ export default function UserPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">User Management</h1>
-            <p className="text-muted-foreground">Manage user accounts and information</p>
+            <p className="text-muted-foreground">Manage system users and their information</p>
           </div>
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger asChild>
               <Button className="bg-black text-white hover:bg-gray-800">
-                <UserPlus className="mr-2 h-4 w-4" />
+                <Plus className="mr-2 h-4 w-4" />
                 Create User
               </Button>
             </DialogTrigger>
@@ -100,8 +124,8 @@ export default function UserPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="user-phone">Phone</Label>
-                    <Input id="user-phone" placeholder="010-0000-0000" />
+                    <Label htmlFor="user-phone">Phone Number</Label>
+                    <Input id="user-phone" placeholder="Enter phone number" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="user-status">Status</Label>
@@ -112,13 +136,10 @@ export default function UserPage() {
                       <SelectContent>
                         <SelectItem value="active">Active</SelectItem>
                         <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="user-notes">Notes</Label>
-                  <Textarea id="user-notes" placeholder="Additional notes about the user" />
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
@@ -137,7 +158,7 @@ export default function UserPage() {
         <Card>
           <CardHeader>
             <CardTitle>Search Users</CardTitle>
-            <CardDescription>Search and filter user accounts</CardDescription>
+            <CardDescription>Search and filter users</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row gap-4">
@@ -145,7 +166,7 @@ export default function UserPage() {
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-600" />
                   <Input
-                    placeholder="Search by name, email, or phone..."
+                    placeholder="Search by name or email..."
                     className="pl-8"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -161,13 +182,10 @@ export default function UserPage() {
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <Button variant="outline" className="border-gray-300 hover:border-black bg-transparent">
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -176,7 +194,7 @@ export default function UserPage() {
         <Card>
           <CardHeader>
             <CardTitle>Users ({users.length})</CardTitle>
-            <CardDescription>List of all registered users</CardDescription>
+            <CardDescription>List of all users</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="rounded-md border">
@@ -184,22 +202,39 @@ export default function UserPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[80px]">ID</TableHead>
-                    <TableHead>Name</TableHead>
+                    <TableHead>User</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Join Date</TableHead>
                     <TableHead>Last Login</TableHead>
-                    <TableHead>Programs</TableHead>
-                    <TableHead className="w-[150px]">Actions</TableHead>
+                    <TableHead className="w-[120px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {users.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.id}</TableCell>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <div
+                          className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-1 rounded"
+                          onClick={() => handleUserClick(user.id)}
+                        >
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium hover:text-blue-600">{user.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className="cursor-pointer hover:text-blue-600 hover:underline"
+                          onClick={() => handleUserClick(user.id)}
+                        >
+                          {user.email}
+                        </span>
+                      </TableCell>
                       <TableCell>{user.phone}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className={getStatusBadgeClass(user.status)}>
@@ -208,20 +243,13 @@ export default function UserPage() {
                       </TableCell>
                       <TableCell>{user.joinDate}</TableCell>
                       <TableCell>{user.lastLogin}</TableCell>
-                      <TableCell>{user.programs}</TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-1">
                           <Button
                             variant="outline"
                             size="sm"
                             className="border-gray-300 hover:border-black bg-transparent"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-gray-300 hover:border-black bg-transparent"
+                            onClick={() => handleEditClick(user.id)}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -229,6 +257,7 @@ export default function UserPage() {
                             variant="outline"
                             size="sm"
                             className="border-gray-300 hover:border-red-500 hover:text-red-500 bg-transparent"
+                            onClick={() => handleDeleteClick(user.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

@@ -28,26 +28,30 @@ export default function NotificationPage() {
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [publishDate, setPublishDate] = useState<Date>()
+  const [selectedCategory, setSelectedCategory] = useState("")
+  const [selectedTargetUser, setSelectedTargetUser] = useState("all")
   const [notifications, setNotifications] = useState([
     {
       id: 1,
       title: "System Maintenance Notice",
       content: "Scheduled maintenance on March 15th from 2:00 AM to 4:00 AM",
-      type: "system",
+      category: "notice",
       status: "published",
       publishDate: "2024-03-10",
       views: 1250,
       priority: "high",
+      targetUser: "all",
     },
     {
       id: 2,
-      title: "New Program Launch",
-      content: "Exciting new hiking program now available for registration",
-      type: "announcement",
+      title: "Privacy Policy Update",
+      content: "Updated privacy policy terms and conditions",
+      category: "privacy",
       status: "draft",
       publishDate: "2024-03-15",
       views: 0,
       priority: "medium",
+      targetUser: "all",
     },
   ])
 
@@ -82,6 +86,21 @@ export default function NotificationPage() {
     }
   }
 
+  const getCategoryLabel = (category: string) => {
+    switch (category) {
+      case "notice":
+        return "공지"
+      case "terms":
+        return "이용약관"
+      case "privacy":
+        return "개인정보 처리방침"
+      case "location":
+        return "위치정보 이용약관"
+      default:
+        return category
+    }
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -98,76 +117,111 @@ export default function NotificationPage() {
                 Create Notification
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Create New Notification</DialogTitle>
                 <DialogDescription>Add a new notification to the system</DialogDescription>
               </DialogHeader>
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="notification-title">Title *</Label>
-                    <Input id="notification-title" placeholder="Enter notification title" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="notification-type">Type</Label>
-                    <Select defaultValue="announcement">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="announcement">Announcement</SelectItem>
-                        <SelectItem value="system">System</SelectItem>
-                        <SelectItem value="maintenance">Maintenance</SelectItem>
-                        <SelectItem value="event">Event</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
+                {/* Category Selection */}
                 <div className="space-y-2">
-                  <Label htmlFor="notification-content">Content *</Label>
-                  <Textarea
-                    id="notification-content"
-                    placeholder="Enter notification content"
-                    className="min-h-[150px]"
-                  />
+                  <Label htmlFor="notification-category">카테고리 *</Label>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="카테고리를 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="notice">공지</SelectItem>
+                      <SelectItem value="terms">이용약관</SelectItem>
+                      <SelectItem value="privacy">개인정보 처리방침</SelectItem>
+                      <SelectItem value="location">위치정보 이용약관</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
+                {/* Title */}
+                <div className="space-y-2">
+                  <Label htmlFor="notification-title">제목 *</Label>
+                  <Input id="notification-title" placeholder="제목을 입력하세요" />
+                </div>
+
+                {/* Content */}
+                <div className="space-y-2">
+                  <Label htmlFor="notification-content">내용 *</Label>
+                  <Textarea id="notification-content" placeholder="내용을 입력하세요" className="min-h-[200px]" />
+                </div>
+
+                {/* External URL */}
+                <div className="space-y-2">
+                  <Label htmlFor="external-url">외부 URL</Label>
+                  <Input id="external-url" type="url" placeholder="https://example.com" />
+                  <p className="text-sm text-muted-foreground">외부 링크가 있는 경우 입력하세요 (선택사항)</p>
+                </div>
+
+                {/* Target User Selection */}
+                <div className="space-y-4">
+                  <Label>타겟 유저 설정 *</Label>
+                  <Select value={selectedTargetUser} onValueChange={setSelectedTargetUser}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="타겟 유저를 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">전체 유저</SelectItem>
+                      <SelectItem value="specific">특정 유저</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Specific User ID Input */}
+                  {selectedTargetUser === "specific" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="user-ids">유저 ID</Label>
+                      <Textarea
+                        id="user-ids"
+                        placeholder="유저 ID를 입력하세요 (여러 개인 경우 쉼표로 구분)&#10;예: user123, user456, user789"
+                        className="min-h-[100px]"
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        특정 유저에게만 알림을 보내려면 유저 ID를 입력하세요
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Additional Settings */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="notification-priority">Priority</Label>
+                    <Label htmlFor="notification-priority">우선순위</Label>
                     <Select defaultValue="medium">
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="high">높음</SelectItem>
+                        <SelectItem value="medium">보통</SelectItem>
+                        <SelectItem value="low">낮음</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="notification-status">Status</Label>
+                    <Label htmlFor="notification-status">상태</Label>
                     <Select defaultValue="draft">
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="published">Published</SelectItem>
-                        <SelectItem value="scheduled">Scheduled</SelectItem>
+                        <SelectItem value="draft">임시저장</SelectItem>
+                        <SelectItem value="published">발행</SelectItem>
+                        <SelectItem value="scheduled">예약발행</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Publish Date</Label>
+                    <Label>발행일</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" className="w-full justify-start text-left font-normal bg-transparent">
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {publishDate ? format(publishDate, "PPP") : "Select date"}
+                          {publishDate ? format(publishDate, "PPP") : "날짜 선택"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -177,34 +231,20 @@ export default function NotificationPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="target-audience">Target Audience</Label>
-                  <Select defaultValue="all">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Users</SelectItem>
-                      <SelectItem value="active">Active Users</SelectItem>
-                      <SelectItem value="participants">Program Participants</SelectItem>
-                      <SelectItem value="admins">Administrators</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex justify-end space-x-2">
+                {/* Action Buttons */}
+                <div className="flex justify-end space-x-2 pt-4 border-t">
                   <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                    Cancel
+                    취소
                   </Button>
                   <Button
                     variant="outline"
                     className="border-blue-300 hover:border-blue-500 text-blue-600 bg-transparent"
                   >
-                    Save as Draft
+                    임시저장
                   </Button>
                   <Button className="bg-black text-white hover:bg-gray-800" onClick={handleCreateNotification}>
                     <Send className="mr-2 h-4 w-4" />
-                    Publish
+                    발행
                   </Button>
                 </div>
               </div>
@@ -261,9 +301,10 @@ export default function NotificationPage() {
                   <TableRow>
                     <TableHead className="w-[80px]">ID</TableHead>
                     <TableHead>Title</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead>Category</TableHead>
                     <TableHead>Priority</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Target</TableHead>
                     <TableHead>Publish Date</TableHead>
                     <TableHead>Views</TableHead>
                     <TableHead className="w-[150px]">Actions</TableHead>
@@ -274,7 +315,11 @@ export default function NotificationPage() {
                     <TableRow key={notification.id}>
                       <TableCell className="font-medium">{notification.id}</TableCell>
                       <TableCell className="font-medium">{notification.title}</TableCell>
-                      <TableCell className="capitalize">{notification.type}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          {getCategoryLabel(notification.category)}
+                        </Badge>
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline" className={getPriorityBadgeClass(notification.priority)}>
                           {notification.priority}
@@ -283,6 +328,11 @@ export default function NotificationPage() {
                       <TableCell>
                         <Badge variant="outline" className={getStatusBadgeClass(notification.status)}>
                           {notification.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                          {notification.targetUser === "all" ? "전체" : "특정"}
                         </Badge>
                       </TableCell>
                       <TableCell>{notification.publishDate}</TableCell>
