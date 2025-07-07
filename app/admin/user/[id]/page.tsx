@@ -1,32 +1,40 @@
 "use client"
-import { useRouter } from "next/navigation"
+
 import { AdminLayout } from "@/components/admin-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ArrowLeft, Trophy, Calendar, Clock, MapPin } from "lucide-react"
+import { ArrowLeft, Mail, Phone, Calendar, MapPin, User, Crown, Trophy, Clock, Route } from "lucide-react"
+import Link from "next/link"
 
-interface UserDetailProps {
+interface UserDetailPageProps {
   params: {
     id: string
   }
 }
 
-export default function UserDetailPage({ params }: UserDetailProps) {
-  const router = useRouter()
-  const userId = params.id
+interface UserBadge {
+  id: string
+  icon: string
+  name: string
+  completionDate: string
+  distance: number
+  duration: string
+  acquisitionCount: number
+}
 
-  // Mock user data
-  const user = {
-    id: userId,
-    username: "kim_runner",
-    firstName: "철수",
-    lastName: "김",
-    englishName: "Chul-soo Kim",
-    email: "kim@example.com",
-    phone: "010-1234-5678",
+export default function UserDetailPage({ params }: UserDetailPageProps) {
+  // Mock user data - would fetch from API based on params.id
+  const userData = {
+    id: params.id,
+    username: "john_doe",
+    firstName: "John",
+    lastName: "Doe",
+    englishName: "John Doe",
+    email: "john.doe@example.com",
+    phone: "+82-10-1234-5678",
     ageRange: "30-39",
     gender: "Male",
     birthDate: "1990-05-15",
@@ -34,199 +42,212 @@ export default function UserDetailPage({ params }: UserDetailProps) {
     region: "Seoul",
     status: "active",
     joinDate: "2024-01-15",
-    lastLogin: "2024-03-10",
+    lastLogin: "2024-01-20",
     avatar: "/placeholder.svg?height=120&width=120",
   }
 
   // Mock badge data
-  const badges = [
+  const userBadges: UserBadge[] = [
     {
-      id: 1,
-      icon: "🏃",
-      name: "First Runner",
-      completionDate: "2024-02-15",
-      distance: "5.2 km",
-      time: "00:25:30",
-      count: 1,
-    },
-    {
-      id: 2,
+      id: "1",
       icon: "🏔️",
       name: "Mountain Explorer",
-      completionDate: "2024-03-01",
-      distance: "12.5 km",
-      time: "01:45:20",
-      count: 3,
+      completionDate: "2024-01-18",
+      distance: 15.5,
+      duration: "3h 45m",
+      acquisitionCount: 3,
     },
     {
-      id: 3,
-      icon: "🌟",
-      name: "Weekly Champion",
-      completionDate: "2024-03-08",
-      distance: "8.7 km",
-      time: "00:42:15",
-      count: 2,
+      id: "2",
+      icon: "🏃",
+      name: "Speed Runner",
+      completionDate: "2024-01-16",
+      distance: 10.2,
+      duration: "1h 20m",
+      acquisitionCount: 1,
     },
     {
-      id: 4,
+      id: "3",
+      icon: "🚶",
+      name: "Trail Walker",
+      completionDate: "2024-01-14",
+      distance: 8.7,
+      duration: "2h 15m",
+      acquisitionCount: 5,
+    },
+    {
+      id: "4",
       icon: "🎯",
       name: "Goal Achiever",
-      completionDate: "2024-03-12",
-      distance: "15.0 km",
-      time: "01:20:45",
-      count: 5,
+      completionDate: "2024-01-12",
+      distance: 25.0,
+      duration: "5h 30m",
+      acquisitionCount: 2,
+    },
+    {
+      id: "5",
+      icon: "⭐",
+      name: "Star Performer",
+      completionDate: "2024-01-10",
+      distance: 12.3,
+      duration: "2h 45m",
+      acquisitionCount: 1,
     },
   ]
 
-  const totalBadges = badges.length
-  const totalDistance = badges.reduce((sum, badge) => sum + Number.parseFloat(badge.distance), 0)
-  const totalCount = badges.reduce((sum, badge) => sum + badge.count, 0)
-  const maxCount = Math.max(...badges.map((badge) => badge.count))
-
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 border-green-300"
-      case "inactive":
-        return "bg-red-100 text-red-800 border-red-300"
-      default:
-        return "bg-gray-200 text-gray-800"
-    }
+  const getStatusColor = (status: string) => {
+    return status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
   }
 
-  const getCountBadgeClass = (count: number) => {
-    if (count >= 5) return "bg-red-100 text-red-800 border-red-300"
-    if (count >= 3) return "bg-orange-100 text-orange-800 border-orange-300"
-    if (count >= 2) return "bg-yellow-100 text-yellow-800 border-yellow-300"
-    return "bg-blue-100 text-blue-800 border-blue-300"
+  const getAcquisitionCountColor = (count: number) => {
+    if (count >= 5) return "bg-purple-100 text-purple-800"
+    if (count >= 3) return "bg-blue-100 text-blue-800"
+    if (count >= 2) return "bg-green-100 text-green-800"
+    return "bg-gray-100 text-gray-800"
   }
+
+  const totalBadges = userBadges.length
+  const totalDistance = userBadges.reduce((sum, badge) => sum + badge.distance, 0)
+  const totalAcquisitions = userBadges.reduce((sum, badge) => sum + badge.acquisitionCount, 0)
+  const maxAcquisitions = Math.max(...userBadges.map((badge) => badge.acquisitionCount))
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.back()}
-            className="border-gray-300 hover:border-black bg-transparent"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+          <Link href="/admin/user">
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Users
+            </Button>
+          </Link>
           <div>
             <h1 className="text-3xl font-bold">User Details</h1>
             <p className="text-muted-foreground">View user information and achievements</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Side - User Information */}
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - User Information */}
+          <div className="lg:col-span-1 space-y-6">
             {/* Profile Card */}
             <Card>
+              <CardHeader className="text-center">
+                <Avatar className="w-24 h-24 mx-auto">
+                  <AvatarImage src={userData.avatar || "/placeholder.svg"} alt={userData.username} />
+                  <AvatarFallback className="text-2xl">
+                    {userData.firstName[0]}
+                    {userData.lastName[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <CardTitle className="text-xl">
+                  {userData.firstName} {userData.lastName}
+                </CardTitle>
+                <CardDescription>@{userData.username}</CardDescription>
+                <Badge className={getStatusColor(userData.status)}>{userData.status}</Badge>
+              </CardHeader>
+            </Card>
+
+            {/* User Information */}
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-3">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.firstName} />
-                    <AvatarFallback className="text-lg">{user.firstName.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h2 className="text-xl font-bold">
-                      {user.firstName} {user.lastName}
-                    </h2>
-                    <p className="text-muted-foreground">@{user.username}</p>
-                  </div>
+                <CardTitle className="flex items-center">
+                  <User className="mr-2 h-5 w-5" />
+                  User Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Username</label>
-                    <p className="text-sm font-medium">{user.username}</p>
+                    <p className="text-sm font-medium text-gray-600">Username</p>
+                    <p className="text-sm">{userData.username}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">English Name</label>
-                    <p className="text-sm font-medium">{user.englishName}</p>
+                    <p className="text-sm font-medium text-gray-600">Name</p>
+                    <p className="text-sm">
+                      {userData.firstName} {userData.lastName}
+                    </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">First Name</label>
-                    <p className="text-sm font-medium">{user.firstName}</p>
+                    <p className="text-sm font-medium text-gray-600">English Name</p>
+                    <p className="text-sm">{userData.englishName}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <Mail className="mr-2 h-4 w-4 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Email</p>
+                      <p className="text-sm">{userData.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <Phone className="mr-2 h-4 w-4 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Phone</p>
+                      <p className="text-sm">{userData.phone}</p>
+                    </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Last Name</label>
-                    <p className="text-sm font-medium">{user.lastName}</p>
+                    <p className="text-sm font-medium text-gray-600">Age Range</p>
+                    <p className="text-sm">{userData.ageRange}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Email</label>
-                    <p className="text-sm font-medium">{user.email}</p>
+                    <p className="text-sm font-medium text-gray-600">Gender</p>
+                    <p className="text-sm">{userData.gender}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="mr-2 h-4 w-4 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Birth Date</p>
+                      <p className="text-sm">{userData.birthDate}</p>
+                    </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Phone</label>
-                    <p className="text-sm font-medium">{user.phone}</p>
+                    <p className="text-sm font-medium text-gray-600">Country</p>
+                    <p className="text-sm">{userData.country}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Age Range</label>
-                    <p className="text-sm font-medium">{user.ageRange}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Gender</label>
-                    <p className="text-sm font-medium">{user.gender}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Birth Date</label>
-                    <p className="text-sm font-medium">{user.birthDate}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Country</label>
-                    <p className="text-sm font-medium">{user.country}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Region</label>
-                    <p className="text-sm font-medium">{user.region}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Status</label>
-                    <Badge variant="outline" className={getStatusBadgeClass(user.status)}>
-                      {user.status}
-                    </Badge>
+                  <div className="flex items-center">
+                    <MapPin className="mr-2 h-4 w-4 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Region</p>
+                      <p className="text-sm">{userData.region}</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Right Side - Badge Information */}
-          <div className="space-y-6">
+          {/* Right Column - Badge Information */}
+          <div className="lg:col-span-2 space-y-6">
             {/* Badge Statistics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="p-4 text-center">
-                  <Trophy className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
+                  <Trophy className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold">{totalBadges}</p>
-                  <p className="text-sm text-muted-foreground">Total Badges</p>
+                  <p className="text-sm text-gray-600">Total Badges</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4 text-center">
-                  <MapPin className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                  <p className="text-2xl font-bold">{totalDistance.toFixed(1)}km</p>
-                  <p className="text-sm text-muted-foreground">Total Distance</p>
+                  <Route className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                  <p className="text-2xl font-bold">{totalDistance.toFixed(1)}</p>
+                  <p className="text-sm text-gray-600">Total Distance (km)</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4 text-center">
-                  <Calendar className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                  <p className="text-2xl font-bold">{totalCount}</p>
-                  <p className="text-sm text-muted-foreground">Total Count</p>
+                  <Crown className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                  <p className="text-2xl font-bold">{totalAcquisitions}</p>
+                  <p className="text-sm text-gray-600">Total Acquisitions</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4 text-center">
-                  <Clock className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                  <p className="text-2xl font-bold">{maxCount}</p>
-                  <p className="text-sm text-muted-foreground">Max Count</p>
+                  <Trophy className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                  <p className="text-2xl font-bold">{maxAcquisitions}</p>
+                  <p className="text-sm text-gray-600">Max Acquisitions</p>
                 </CardContent>
               </Card>
             </div>
@@ -234,40 +255,49 @@ export default function UserDetailPage({ params }: UserDetailProps) {
             {/* Badge List */}
             <Card>
               <CardHeader>
-                <CardTitle>Acquired Badges</CardTitle>
-                <CardDescription>List of badges earned by the user</CardDescription>
+                <CardTitle className="flex items-center">
+                  <Crown className="mr-2 h-5 w-5" />
+                  User Badges
+                </CardTitle>
+                <CardDescription>Badges earned by the user with completion details</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[60px]">Icon</TableHead>
-                        <TableHead>Badge Name</TableHead>
-                        <TableHead>Completion Date</TableHead>
-                        <TableHead>Distance</TableHead>
-                        <TableHead>Time</TableHead>
-                        <TableHead>Count</TableHead>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Badge</TableHead>
+                      <TableHead>Completion Date</TableHead>
+                      <TableHead>Distance (km)</TableHead>
+                      <TableHead>Duration</TableHead>
+                      <TableHead>Acquisitions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {userBadges.map((badge) => (
+                      <TableRow key={badge.id}>
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <span className="text-2xl">{badge.icon}</span>
+                            <span className="font-medium">{badge.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{badge.completionDate}</TableCell>
+                        <TableCell>{badge.distance.toFixed(1)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Clock className="mr-1 h-4 w-4 text-gray-400" />
+                            {badge.duration}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getAcquisitionCountColor(badge.acquisitionCount)}>
+                            {badge.acquisitionCount}x
+                          </Badge>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {badges.map((badge) => (
-                        <TableRow key={badge.id}>
-                          <TableCell className="text-2xl">{badge.icon}</TableCell>
-                          <TableCell className="font-medium">{badge.name}</TableCell>
-                          <TableCell>{badge.completionDate}</TableCell>
-                          <TableCell>{badge.distance}</TableCell>
-                          <TableCell>{badge.time}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={getCountBadgeClass(badge.count)}>
-                              {badge.count}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                    ))}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </div>
