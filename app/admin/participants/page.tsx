@@ -226,7 +226,7 @@ export default function ParticipantsPage() {
                     <SelectValue placeholder="All programs" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All programs</SelectItem>
+                    <SelectItem value="all">All programs</SelectItem>
                     {programs.map((program) => (
                       <SelectItem key={program.id} value={program.id}>
                         {program.name}
@@ -243,7 +243,7 @@ export default function ParticipantsPage() {
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All statuses</SelectItem>
+                    <SelectItem value="all">All statuses</SelectItem>
                     <SelectItem value="Completed">Completed</SelectItem>
                     <SelectItem value="In Progress">In Progress</SelectItem>
                     <SelectItem value="Pending">Pending</SelectItem>
@@ -275,12 +275,12 @@ export default function ParticipantsPage() {
             {hasActiveFilters && (
               <div className="flex flex-wrap gap-2 pt-2 border-t">
                 <span className="text-sm text-gray-600">Active filters:</span>
-                {selectedProgram && (
+                {selectedProgram && selectedProgram !== "all" && (
                   <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                     Program: {programs.find((p) => p.id === selectedProgram)?.name}
                   </Badge>
                 )}
-                {selectedStatus && (
+                {selectedStatus && selectedStatus !== "all" && (
                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                     Status: {selectedStatus}
                   </Badge>
