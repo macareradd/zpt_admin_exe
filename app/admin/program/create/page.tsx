@@ -16,6 +16,7 @@ import Link from "next/link"
 
 export default function CreateProgram() {
   const [programType, setProgramType] = useState("")
+  const [programCategory, setProgramCategory] = useState("")
   const [isDailyPractice, setIsDailyPractice] = useState(false)
   const [estimateHours, setEstimateHours] = useState("")
   const [estimateMinutes, setEstimateMinutes] = useState("")
@@ -43,6 +44,10 @@ export default function CreateProgram() {
     setIsDailyPractice(value === "daily practice")
   }
 
+  const handleCategoryChange = (value: string) => {
+    setProgramCategory(value)
+  }
+
   const handleLocationChange = (value: string) => {
     setSelectedLocation(value)
     setSelectedLocalPlayer("") // Reset local player when location changes
@@ -52,6 +57,9 @@ export default function CreateProgram() {
     if (!selectedLocation) return []
     return localPlayers.filter((player) => player.region === selectedLocation)
   }
+
+  // Check if price should be disabled
+  const isPriceDisabled = programCategory === "데일리 프로그램" || programCategory === "단체 운동"
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -93,6 +101,21 @@ export default function CreateProgram() {
                   <Label htmlFor="code">Code *</Label>
                   <Input id="code" placeholder="Enter program code" required />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="program-category">Program Category *</Label>
+                <Select onValueChange={handleCategoryChange} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select program category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="데일리 프로그램">데일리 프로그램</SelectItem>
+                    <SelectItem value="프리미엄 프로그램">프리미엄 프로그램</SelectItem>
+                    <SelectItem value="단체 운동">단체 운동</SelectItem>
+                    <SelectItem value="이벤트">이벤트</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
@@ -199,22 +222,52 @@ export default function CreateProgram() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
-                  <Input id="price" type="number" placeholder="0" />
+                  <Input
+                    id="price"
+                    type="number"
+                    placeholder="0"
+                    disabled={isPriceDisabled}
+                    className={isPriceDisabled ? "bg-gray-100 cursor-not-allowed" : ""}
+                  />
+                  {isPriceDisabled && (
+                    <p className="text-sm text-muted-foreground">Price is disabled for {programCategory}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reboot-price">Reboot Price</Label>
-                  <Input id="reboot-price" type="number" placeholder="0" />
+                  <Input
+                    id="reboot-price"
+                    type="number"
+                    placeholder="0"
+                    disabled={isPriceDisabled}
+                    className={isPriceDisabled ? "bg-gray-100 cursor-not-allowed" : ""}
+                  />
+                  {isPriceDisabled && (
+                    <p className="text-sm text-muted-foreground">Reboot price is disabled for {programCategory}</p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="payment-url">Payment URL</Label>
-                  <Input id="payment-url" type="url" placeholder="https://" />
+                  <Input
+                    id="payment-url"
+                    type="url"
+                    placeholder="https://"
+                    disabled={isPriceDisabled}
+                    className={isPriceDisabled ? "bg-gray-100 cursor-not-allowed" : ""}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="reboot-payment-url">Reboot Payment URL</Label>
-                  <Input id="reboot-payment-url" type="url" placeholder="https://" />
+                  <Input
+                    id="reboot-payment-url"
+                    type="url"
+                    placeholder="https://"
+                    disabled={isPriceDisabled}
+                    className={isPriceDisabled ? "bg-gray-100 cursor-not-allowed" : ""}
+                  />
                 </div>
               </div>
             </CardContent>
